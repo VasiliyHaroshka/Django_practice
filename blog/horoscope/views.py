@@ -2,7 +2,6 @@ from django.http import HttpResponse, HttpResponseNotFound, HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
 
-
 zodiac_dict = {
     "aries": "Овен - первый знак зодиака, планета Марс (с 21 марта по 20 апреля)",
     "taurus": "Телец - второй знак зодиака, планета Венера (с 21 апреля по 21 мая)",
@@ -18,11 +17,61 @@ zodiac_dict = {
     "pisces": "Рыбы - двенадцатый знак зодиака, планеты Юпитер (с 20 февраля по 20 марта)",
 }
 
+types = {
+    "fire": ["aries", "leo", "capricorn"],
+    "earth": ["taurus", "virgo", "capricorn"],
+    "air": ["gemini", "libra", "aquarius"],
+    "water": ["cancer", "scorpio", "pisces"],
+}
+
+
+def show_types(request):
+    all_types = list(types)
+    li_types = ""
+    for elements in all_types:
+        redirect_path = reverse("horoscope_category", args=(elements,))
+        li_types += f"<li> <a href='{redirect_path}'>{elements}</a> </li>"
+    response = f"""
+    <ul>
+        <h3>{li_types}</h3>
+    </ul>
+    """
+    return HttpResponse(response)
+
+
+def show_type(request, elements):
+    list_zodiac = types[elements]
+    zodiaks = ""
+    for sign in list_zodiac:
+        redirect_path = reverse("horoscope_sign", args=(sign,))
+        zodiaks += f"<li> <a href='{redirect_path}'>{sign}</a> </li>"
+    response = f"""
+    <ul>
+        <h3>{zodiaks}</h3>
+    </ul>
+    """
+    return HttpResponse(response)
+
+
+def index(request):
+    zodiacs = list(zodiac_dict)
+    li_elements = ""
+    for sign in zodiacs:
+        redirect_path = reverse("horoscope_sign", args=(sign,))
+        li_elements += f"<li> <a href='{redirect_path}'>{sign.title()}</a> </li>"
+
+    response = f"""
+    <ul>
+        <h3>{li_elements}</h3>
+    </ul>
+    """
+    return HttpResponse(response)
+
 
 def get_info(request, zodiak: str):
-    discription = zodiac_dict.get(zodiak)
-    if discription:
-        return HttpResponse(discription)
+    description = zodiac_dict.get(zodiak)
+    if description:
+        return HttpResponse(f"<h2>{description}</h2>")
     else:
         return HttpResponseNotFound(f"{zodiak} - Нет такого знака зодиака")
 
